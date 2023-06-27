@@ -1,0 +1,42 @@
+{
+  "name": "flac-tagger",
+  "version": "1.0.0",
+  "description": "Pure JavaScript FLAC Tag writer and reader.",
+  "main": "dist/esm/index.js",
+  "types": "dist/type/index.d.ts",
+  "type": "module",
+  "exports": {
+    "import": "./dist/esm/index.js",
+    "require": "./dist/cjs/index.js",
+    "default": "./dist/esm/index.js"
+  },
+  "scripts": {
+    "watch": "tsc --watch --sourceMap",
+    "build-esm": "tsc",
+    "build-cjs": "tsc -p tsconfig.cjs.json",
+    "build": "npm-run-all -p build-esm build-cjs",
+    "type-check": "tsc --noEmit",
+    "eslint-check": "eslint . --ext .cjs,.mjs,.ts",
+    "eslint-fix": "eslint . --ext .cjs,.mjs,.ts --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "devDependencies": {
+    "@the1812/eslint-config": "1.0.1",
+    "@types/node": "^20.3.2",
+    "@typescript-eslint/eslint-plugin": "5.57.1",
+    "@typescript-eslint/parser": "5.57.1",
+    "eslint": "8.38.0",
+    "eslint-config-airbnb-base": "15.0.0",
+    "eslint-config-prettier": "8.8.0",
+    "eslint-plugin-import": "2.27.5",
+    "eslint-plugin-prettier": "4.2.1",
+    "eslint-plugin-vue": "9.10.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "5.0.4"
+  },
+  "dependencies": {
+    "imageinfo": "^1.0.4"
+  }
+}

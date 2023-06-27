@@ -1,0 +1,10 @@
+{
+  "cSpell.words": [
+    "flac",
+    "imageinfo",
+    "Vorbis"
+  ],
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  }
+}

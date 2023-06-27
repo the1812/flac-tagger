@@ -1,0 +1,8 @@
+.vscode/
+.github/
+src/
+.gitattributes
+.eslintignore
+.eslintrc.*
+tsconfig.json
+tsconfig.*.json
