@@ -14,7 +14,7 @@
     "watch": "tsc --watch --sourceMap",
     "build-esm": "tsc",
     "build-cjs": "tsc -p tsconfig.cjs.json",
-    "build": "npm-run-all -p build-esm build-cjs",
+    "build": "npm-run-all -p build-esm build-cjs && tsconfig-to-dual-package",
     "type-check": "tsc --noEmit",
     "eslint-check": "eslint . --ext .cjs,.mjs,.ts",
     "eslint-fix": "eslint . --ext .cjs,.mjs,.ts --fix"
@@ -34,6 +34,7 @@
     "eslint-plugin-prettier": "4.2.1",
     "eslint-plugin-vue": "9.10.0",
     "npm-run-all": "^4.1.5",
+    "tsconfig-to-dual-package": "^1.2.0",
     "typescript": "5.0.4"
   },
   "dependencies": {
