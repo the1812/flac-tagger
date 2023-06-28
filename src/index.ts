@@ -1,12 +1,12 @@
 import { readFileSync, writeFileSync } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
-import { VorbisComment, VorbisCommentBlock } from './metadata-block/vorbis-comment'
+import { VorbisCommentBlock } from './metadata-block/vorbis-comment'
 import { PictureBlock, PictureType } from './metadata-block/picture'
 import { FlacStream } from './stream'
 import { MetadataBlockType } from './metadata-block/header'
 
 export interface FlacTags {
-  vorbisComments: VorbisComment[]
+  tagMap: Record<string, string[] | string>
   picture?: {
     pictureType?: PictureType
     mime?: string
@@ -26,13 +26,33 @@ export {
 export { MetadataBlock } from './metadata-block/index'
 export { OtherMetadataBlock } from './metadata-block/other'
 export { PictureBlock, PictureType } from './metadata-block/picture'
-export { VorbisComment, VorbisCommentBlock } from './metadata-block/vorbis-comment'
+export { VorbisCommentBlock } from './metadata-block/vorbis-comment'
 
 const readFlacTagsBuffer = (buffer: Buffer) => {
   const stream = FlacStream.fromBuffer(buffer)
   const { vorbisCommentBlock, pictureBlock } = stream
+  const commentList = vorbisCommentBlock?.commentList ?? []
+  const tagMap: FlacTags['tagMap'] = {}
+  commentList.forEach(it => {
+    const splitIndex = it.indexOf('=')
+    if (splitIndex === -1) {
+      return
+    }
+    const key = it.substring(0, splitIndex)
+    const value = it.substring(splitIndex + 1)
+    const existingValue = tagMap[key]
+    if (existingValue) {
+      if (Array.isArray(existingValue)) {
+        existingValue.push(value)
+      } else {
+        tagMap[key] = [existingValue, value]
+      }
+    } else {
+      tagMap[key] = value
+    }
+  })
   const tags: FlacTags = {
-    vorbisComments: vorbisCommentBlock?.commentList ?? [],
+    tagMap,
     picture: pictureBlock
       ? {
           pictureType: pictureBlock.pictureType,
@@ -69,13 +89,20 @@ export const readFlacTags = async (input: string | Buffer) => {
 
 const createFlacTagsBuffer = (tags: FlacTags, sourceBuffer: Buffer) => {
   const stream = FlacStream.fromBuffer(sourceBuffer)
-
+  const commentList: string[] = []
+  Object.entries(tags.tagMap).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach(singleValue => commentList.push(`${key}=${singleValue}`))
+    } else {
+      commentList.push(`${key}=${value}`)
+    }
+  })
   if (stream.vorbisCommentBlock) {
-    stream.vorbisCommentBlock.commentList = tags.vorbisComments
+    stream.vorbisCommentBlock.commentList = commentList
   } else {
     stream.metadataBlocks.push(
       new VorbisCommentBlock({
-        commentList: tags.vorbisComments,
+        commentList,
       }),
     )
   }

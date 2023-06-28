@@ -3,17 +3,16 @@ import { MetadataBlock } from './index'
 import { allocBufferAndWrite } from '../buffer-base'
 
 export const DefaultVendorString = 'reference flac-tagger 1.0.0 20230626'
-export type VorbisComment = string
 export class VorbisCommentBlock extends MetadataBlock {
   header: MetadataBlockHeader
   vendorString: string
-  commentList: VorbisComment[]
+  commentList: string[]
 
   constructor(
     initialValues: {
       header?: MetadataBlockHeader
       vendorString?: string
-      commentList?: VorbisComment[]
+      commentList?: string[]
     } = {},
   ) {
     super()
@@ -41,7 +40,7 @@ export class VorbisCommentBlock extends MetadataBlock {
     const vendorString = buffer.subarray(bufferIndex, bufferIndex + vendorLength).toString()
     bufferIndex += vendorLength
 
-    const list: VorbisComment[] = []
+    const list: string[] = []
     const listLength = buffer.readUintLE(bufferIndex, 4)
     bufferIndex += 4
 
