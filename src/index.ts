@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs'
+import { readFile, writeFile } from 'fs/promises'
 import { VorbisComment, VorbisCommentBlock } from './metadata-block/vorbis-comment'
 import { PictureBlock, PictureType } from './metadata-block/picture'
 import { FlacStream } from './stream'
@@ -27,14 +28,7 @@ export { OtherMetadataBlock } from './metadata-block/other'
 export { PictureBlock, PictureType } from './metadata-block/picture'
 export { VorbisComment, VorbisCommentBlock } from './metadata-block/vorbis-comment'
 
-export const readFlacTags = (input: string | Buffer) => {
-  let buffer: Buffer
-  if (typeof input === 'string') {
-    buffer = readFileSync(input)
-  } else {
-    buffer = input
-  }
-
+const readFlacTagsBuffer = (buffer: Buffer) => {
   const stream = FlacStream.fromBuffer(buffer)
   const { vorbisCommentBlock, pictureBlock } = stream
   const tags: FlacTags = {
@@ -52,11 +46,29 @@ export const readFlacTags = (input: string | Buffer) => {
   }
   return tags
 }
+export const readFlacTagsSync = (input: string | Buffer) => {
+  let buffer: Buffer
+  if (typeof input === 'string') {
+    buffer = readFileSync(input)
+  } else {
+    buffer = input
+  }
 
-export const writeFlacTags = (tags: FlacTags, filePath: string) => {
-  const buffer = readFileSync(filePath)
-  const stream = FlacStream.fromBuffer(buffer)
-  // const originalLength = stream.length
+  return readFlacTagsBuffer(buffer)
+}
+export const readFlacTags = async (input: string | Buffer) => {
+  let buffer: Buffer
+  if (typeof input === 'string') {
+    buffer = await readFile(input)
+  } else {
+    buffer = input
+  }
+
+  return readFlacTagsBuffer(buffer)
+}
+
+const createFlacTagsBuffer = (tags: FlacTags, sourceBuffer: Buffer) => {
+  const stream = FlacStream.fromBuffer(sourceBuffer)
 
   if (stream.vorbisCommentBlock) {
     stream.vorbisCommentBlock.commentList = tags.vorbisComments
@@ -86,18 +98,14 @@ export const writeFlacTags = (tags: FlacTags, filePath: string) => {
   }
 
   stream.metadataBlocks = stream.metadataBlocks.filter(b => b.type !== MetadataBlockType.Padding)
-  // if (stream.metadataBlocks.some(b => b.type === MetadataBlockType.Padding)) {
-  //   stream.metadataBlocks = stream.metadataBlocks.filter(b => b.type !== MetadataBlockType.Padding)
-  //   const paddingLength = originalLength - stream.length
-  //   if (paddingLength - MetadataBlockHeaderLength > 0) {
-  //     stream.metadataBlocks.push(new OtherMetadataBlock({
-  //       header: new MetadataBlockHeader({
-  //         type: MetadataBlockType.Padding,
-  //       }),
-  //       data: Buffer.alloc(paddingLength - MetadataBlockHeaderLength),
-  //     }))
-  //   }
-  // }
 
-  writeFileSync(filePath, stream.toBuffer())
+  return stream.toBuffer()
+}
+export const writeFlacTagsSync = (tags: FlacTags, filePath: string) => {
+  const buffer = readFileSync(filePath)
+  writeFileSync(filePath, createFlacTagsBuffer(tags, buffer))
+}
+export const writeFlacTags = async (tags: FlacTags, filePath: string) => {
+  const buffer = await readFile(filePath)
+  await writeFile(filePath, createFlacTagsBuffer(tags, buffer))
 }
