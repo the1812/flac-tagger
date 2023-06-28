@@ -5,8 +5,9 @@ import { PictureBlock, PictureType } from './metadata-block/picture'
 import { FlacStream } from './stream'
 import { MetadataBlockType } from './metadata-block/header'
 
+export type FlacTagMap = Record<string, string[] | string>
 export interface FlacTags {
-  tagMap: Record<string, string[] | string>
+  tagMap: FlacTagMap
   picture?: {
     pictureType?: PictureType
     mime?: string
@@ -32,7 +33,7 @@ const readFlacTagsBuffer = (buffer: Buffer) => {
   const stream = FlacStream.fromBuffer(buffer)
   const { vorbisCommentBlock, pictureBlock } = stream
   const commentList = vorbisCommentBlock?.commentList ?? []
-  const tagMap: FlacTags['tagMap'] = {}
+  const tagMap: FlacTagMap = {}
   commentList.forEach(it => {
     const splitIndex = it.indexOf('=')
     if (splitIndex === -1) {
@@ -92,9 +93,9 @@ const createFlacTagsBuffer = (tags: FlacTags, sourceBuffer: Buffer) => {
   const commentList: string[] = []
   Object.entries(tags.tagMap).forEach(([key, value]) => {
     if (Array.isArray(value)) {
-      value.forEach(singleValue => commentList.push(`${key}=${singleValue}`))
+      value.forEach(singleValue => commentList.push(`${key.toUpperCase()}=${singleValue}`))
     } else {
-      commentList.push(`${key}=${value}`)
+      commentList.push(`${key.toUpperCase()}=${value}`)
     }
   })
   if (stream.vorbisCommentBlock) {
