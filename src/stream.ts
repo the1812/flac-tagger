@@ -6,7 +6,6 @@ import type { PictureBlock } from './metadata-block/picture'
 import type { VorbisCommentBlock } from './metadata-block/vorbis-comment'
 
 const FlacStreamMarker = 'fLaC'
-// spec: https://xiph.org/flac/format.html
 export class FlacStream extends BufferBase {
   metadataBlocks: MetadataBlock[]
   frameData: Buffer

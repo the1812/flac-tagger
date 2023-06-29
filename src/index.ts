@@ -5,15 +5,47 @@ import { PictureBlock, PictureType } from './metadata-block/picture'
 import { FlacStream } from './stream'
 import { MetadataBlockType } from './metadata-block/header'
 
+/**
+ * Map tag name to single value (`string`) or multiple values (`string[]`). The tag name does not need to be uppercase.
+ * @example
+ * ```ts
+ * const tagMap: FlacTagMap = {
+ *   // single value
+ *   title: 'song title',
+ *   // multiple values
+ *   artist: ['artist A', 'artist B'],
+ *   album: 'album name',
+ * }
+ * ```
+ */
 export type FlacTagMap = Record<string, string[] | string>
+/**
+ * The FLAC tags interface for read / write.
+ */
 export interface FlacTags {
+  /** FLAC tag map, see {@link FlacTagMap} */
   tagMap: FlacTagMap
+  /** Cover image definition */
   picture?: {
+    /** Specify the {@link PictureType}
+     * @default PictureType.FrontCover
+     * @see https://xiph.org/flac/format.html#metadata_block_picture
+     */
     pictureType?: PictureType
+    /** MIME type of the image, inferred from buffer by default */
     mime?: string
+    /** Description of the image */
     description?: string
+    /** Color depth of the image in bits-per-pixel
+     * @default 24
+     */
     colorDepth?: number
+    /**
+     * The number of colors used in the image (Only for indexed-color image like GIF)
+     * @default 0
+     */
     colors?: number
+    /** Buffer data of the image */
     buffer: Buffer
   }
 }
@@ -67,6 +99,10 @@ const readFlacTagsBuffer = (buffer: Buffer) => {
   }
   return tags
 }
+/**
+ * Read FLAC Tags (Synchronously)
+ * @param input FLAC file path or buffer
+ */
 export const readFlacTagsSync = (input: string | Buffer) => {
   let buffer: Buffer
   if (typeof input === 'string') {
@@ -77,6 +113,10 @@ export const readFlacTagsSync = (input: string | Buffer) => {
 
   return readFlacTagsBuffer(buffer)
 }
+/**
+ * Read FLAC Tags
+ * @param input FLAC file path or buffer
+ */
 export const readFlacTags = async (input: string | Buffer) => {
   let buffer: Buffer
   if (typeof input === 'string') {
@@ -129,10 +169,20 @@ const createFlacTagsBuffer = (tags: FlacTags, sourceBuffer: Buffer) => {
 
   return stream.toBuffer()
 }
+/**
+ * Write FLAC Tags to file (Synchronously)
+ * @param tags FLAC Tags to write
+ * @param filePath FLAC file path
+ */
 export const writeFlacTagsSync = (tags: FlacTags, filePath: string) => {
   const buffer = readFileSync(filePath)
   writeFileSync(filePath, createFlacTagsBuffer(tags, buffer))
 }
+/**
+ * Write FLAC Tags to file
+ * @param tags FLAC Tags to write
+ * @param filePath FLAC file path
+ */
 export const writeFlacTags = async (tags: FlacTags, filePath: string) => {
   const buffer = await readFile(filePath)
   await writeFile(filePath, createFlacTagsBuffer(tags, buffer))
