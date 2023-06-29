@@ -1,6 +1,6 @@
 {
   "name": "flac-tagger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pure JavaScript FLAC Tag writer and reader.",
   "main": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
@@ -19,7 +19,13 @@
     "eslint-check": "eslint . --ext .cjs,.mjs,.ts",
     "eslint-fix": "eslint . --ext .cjs,.mjs,.ts --fix"
   },
-  "keywords": [],
+  "keywords": [
+    "nodejs",
+    "metadata",
+    "tags",
+    "flac",
+    "music"
+  ],
   "author": "",
   "license": "SEE LICENSE IN LICENSE.md",
   "devDependencies": {
