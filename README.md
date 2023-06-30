@@ -21,6 +21,9 @@ const tagsFromFile: FlacTags = await readFlacTags('path/to/file.flac')
 // read from buffer
 const buffer = await readFile('path/to/file.flac')
 const tagsFromBuffer: FlacTags = await readFlacTags(buffer)
+
+// read tag by vorbis comment name (case-insensitive)
+const { title, artist, album } = tagsFromFile
 ```
 
 ### Write FLAC Tags
@@ -28,6 +31,7 @@ const tagsFromBuffer: FlacTags = await readFlacTags(buffer)
 import { FlacTagMap, writeFlacTags } from 'flac-tagger'
 import { readFile } from 'fs/promises'
 
+// write vorbis comments (names are case-insensitive)
 const tagMap: FlacTagMap = {
   // single value
   title: 'song title',
