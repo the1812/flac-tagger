@@ -19,6 +19,19 @@ import { MetadataBlockType } from './metadata-block/header'
  * ```
  */
 export type FlacTagMap = Record<string, string[] | string>
+const createFlacTagMap = (): FlacTagMap => {
+  return new Proxy(
+    {},
+    {
+      get(target, p, receiver) {
+        return Reflect.get(target, p.toString().toUpperCase(), receiver)
+      },
+      set(target, p, newValue, receiver) {
+        return Reflect.set(target, p.toString().toUpperCase(), newValue, receiver)
+      },
+    },
+  )
+}
 /**
  * The FLAC tags interface for read / write.
  */
@@ -65,7 +78,7 @@ const readFlacTagsBuffer = (buffer: Buffer) => {
   const stream = FlacStream.fromBuffer(buffer)
   const { vorbisCommentBlock, pictureBlock } = stream
   const commentList = vorbisCommentBlock?.commentList ?? []
-  const tagMap: FlacTagMap = {}
+  const tagMap = createFlacTagMap()
   commentList.forEach(it => {
     const splitIndex = it.indexOf('=')
     if (splitIndex === -1) {
