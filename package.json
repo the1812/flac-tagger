@@ -1,6 +1,6 @@
 {
   "name": "flac-tagger",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Pure JavaScript FLAC Tag writer and reader.",
   "main": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
@@ -33,7 +33,7 @@
     "flac",
     "music"
   ],
-  "author": "",
+  "author": "Grant Howard (https://github.com/the1812)",
   "license": "SEE LICENSE IN LICENSE.md",
   "devDependencies": {
     "@the1812/eslint-config": "1.0.1",
