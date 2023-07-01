@@ -1,6 +1,7 @@
 .vscode/
 .github/
 src/
+test/
 .gitattributes
 .eslintignore
 .eslintrc.*
