@@ -1,6 +1,6 @@
 {
   "name": "flac-tagger",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Pure JavaScript FLAC Tag writer and reader.",
   "main": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
@@ -17,7 +17,9 @@
     "build": "npm-run-all -p build-esm build-cjs && tsconfig-to-dual-package",
     "type-check": "tsc --noEmit",
     "eslint-check": "eslint . --ext .cjs,.mjs,.ts",
-    "eslint-fix": "eslint . --ext .cjs,.mjs,.ts --fix"
+    "eslint-fix": "eslint . --ext .cjs,.mjs,.ts --fix",
+    "test-watch": "vitest",
+    "test": "vitest run"
   },
   "keywords": [
     "nodejs",
@@ -41,7 +43,8 @@
     "eslint-plugin-vue": "9.10.0",
     "npm-run-all": "^4.1.5",
     "tsconfig-to-dual-package": "^1.2.0",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "vitest": "^0.32.2"
   },
   "dependencies": {
     "imageinfo": "^1.0.4"
