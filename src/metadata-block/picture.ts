@@ -1,7 +1,7 @@
 import imageinfo from 'imageinfo'
-import { MetadataBlockHeader, MetadataBlockHeaderLength, MetadataBlockType } from './header'
-import { MetadataBlock } from './index'
-import { allocBufferAndWrite } from '../buffer-base'
+import { MetadataBlockHeader, MetadataBlockHeaderLength, MetadataBlockType } from './header.js'
+import { MetadataBlock } from './index.js'
+import { allocBufferAndWrite } from '../buffer-base.js'
 
 export enum PictureType {
   Other,

@@ -1,9 +1,9 @@
-import { BufferBase } from './buffer-base'
-import { MetadataBlock } from './metadata-block/index'
-import { MetadataBlockType } from './metadata-block/header'
-import { parseBlock } from './metadata-block/parse'
-import type { PictureBlock } from './metadata-block/picture'
-import type { VorbisCommentBlock } from './metadata-block/vorbis-comment'
+import { BufferBase } from './buffer-base.js'
+import { MetadataBlock } from './metadata-block/index.js'
+import { MetadataBlockType } from './metadata-block/header.js'
+import { parseBlock } from './metadata-block/parse.js'
+import type { PictureBlock } from './metadata-block/picture.js'
+import type { VorbisCommentBlock } from './metadata-block/vorbis-comment.js'
 
 const FlacStreamMarker = 'fLaC'
 export class FlacStream extends BufferBase {

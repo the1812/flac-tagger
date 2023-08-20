@@ -1,4 +1,4 @@
-import { BufferBase, allocBufferAndWrite } from '../buffer-base'
+import { BufferBase, allocBufferAndWrite } from '../buffer-base.js'
 
 export enum MetadataBlockType {
   StreamInfo = 0,

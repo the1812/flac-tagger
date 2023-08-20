@@ -1,5 +1,5 @@
-import { MetadataBlock } from './index'
-import { MetadataBlockHeader } from './header'
+import { MetadataBlock } from './index.js'
+import { MetadataBlockHeader } from './header.js'
 
 export class OtherMetadataBlock extends MetadataBlock {
   header: MetadataBlockHeader

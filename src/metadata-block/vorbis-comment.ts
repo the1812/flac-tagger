@@ -1,6 +1,6 @@
-import { MetadataBlockHeader, MetadataBlockHeaderLength, MetadataBlockType } from './header'
-import { MetadataBlock } from './index'
-import { allocBufferAndWrite } from '../buffer-base'
+import { MetadataBlockHeader, MetadataBlockHeaderLength, MetadataBlockType } from './header.js'
+import { MetadataBlock } from './index.js'
+import { allocBufferAndWrite } from '../buffer-base.js'
 
 export const DefaultVendorString = 'reference flac-tagger 1.0.0 20230626'
 export class VorbisCommentBlock extends MetadataBlock {
