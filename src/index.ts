@@ -1,9 +1,9 @@
 import { readFileSync, writeFileSync } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
-import { VorbisCommentBlock } from './metadata-block/vorbis-comment'
-import { PictureBlock, PictureType } from './metadata-block/picture'
-import { FlacStream } from './stream'
-import { MetadataBlockType } from './metadata-block/header'
+import { VorbisCommentBlock } from './metadata-block/vorbis-comment.js'
+import { PictureBlock, PictureType } from './metadata-block/picture.js'
+import { FlacStream } from './stream.js'
+import { MetadataBlockType } from './metadata-block/header.js'
 
 /**
  * Map tag name to single value (`string`) or multiple values (`string[]`). The tag name does not need to be uppercase.
@@ -62,17 +62,17 @@ export interface FlacTags {
     buffer: Buffer
   }
 }
-export { FlacStream } from './stream'
-export { BufferBase } from './buffer-base'
+export { FlacStream } from './stream.js'
+export { BufferBase } from './buffer-base.js'
 export {
   MetadataBlockType,
   MetadataBlockHeaderLength,
   MetadataBlockHeader,
-} from './metadata-block/header'
-export { MetadataBlock } from './metadata-block/index'
-export { OtherMetadataBlock } from './metadata-block/other'
-export { PictureBlock, PictureType } from './metadata-block/picture'
-export { VorbisCommentBlock } from './metadata-block/vorbis-comment'
+} from './metadata-block/header.js'
+export { MetadataBlock } from './metadata-block/index.js'
+export { OtherMetadataBlock } from './metadata-block/other.js'
+export { PictureBlock, PictureType } from './metadata-block/picture.js'
+export { VorbisCommentBlock } from './metadata-block/vorbis-comment.js'
 
 const readFlacTagsBuffer = (buffer: Buffer) => {
   const stream = FlacStream.fromBuffer(buffer)

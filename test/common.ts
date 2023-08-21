@@ -1,6 +1,6 @@
 import { assert } from 'vitest'
 import { readFile } from 'fs/promises'
-import { FlacTags } from '../src/index'
+import { FlacTags } from '../src/index.js'
 
 export const coverBuffer = await readFile('./test/cover.jpg')
 export const tags: FlacTags = {
