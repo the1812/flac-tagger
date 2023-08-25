@@ -23,7 +23,9 @@ const buffer = await readFile('path/to/file.flac')
 const tagsFromBuffer: FlacTags = await readFlacTags(buffer)
 
 // read tag by vorbis comment name (case-insensitive)
-const { title, artist, album } = tagsFromFile
+const { title, artist, album } = tagsFromFile.tagMap
+// read cover image
+const coverBuffer = tagsFromFile.picture?.buffer
 ```
 
 ### Write FLAC Tags
