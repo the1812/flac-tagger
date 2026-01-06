@@ -2,6 +2,9 @@
 
 Pure JavaScript FLAC Tag writer and reader.
 
+> [!NOTE]
+> This package is ESM-only. For CommonJS support, use v1 version.
+
 ## Installation
 
 ```powershell
