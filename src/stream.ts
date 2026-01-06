@@ -12,7 +12,8 @@ export class FlacStream extends BufferBase {
 
   constructor(initialValues: { metadataBlocks: MetadataBlock[]; frameData: Buffer }) {
     super()
-    Object.assign(this, initialValues)
+    this.metadataBlocks = initialValues.metadataBlocks
+    this.frameData = initialValues.frameData
   }
 
   get vorbisCommentBlock(): VorbisCommentBlock | undefined {

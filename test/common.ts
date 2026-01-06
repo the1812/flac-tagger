@@ -19,5 +19,5 @@ export const assertTags = (actualTags: FlacTags) => {
   assert.deepEqual(actualTags.tagMap.artist, tags.tagMap.artist)
   assert.equal(actualTags.tagMap.album, tags.tagMap.album)
   assert.equal(actualTags.tagMap.albumSortOrder, tags.tagMap.albumSortOrder)
-  assert.isTrue(coverBuffer.equals(actualTags.picture?.buffer))
+  assert.isTrue(coverBuffer.equals(actualTags.picture?.buffer as Buffer))
 }

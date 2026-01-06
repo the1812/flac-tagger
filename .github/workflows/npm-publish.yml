@@ -22,7 +22,6 @@ jobs:
           node-version: 24
       - uses: pnpm/action-setup@v4
         with:
-          version: ^8.6.5
           run_install: true
       - run: pnpm lint
       - run: pnpm build
