@@ -10,20 +10,16 @@ on:
 
 jobs:
   publish-npm:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: 18
-          registry-url: https://registry.npmjs.org/
-      - uses: pnpm/action-setup@v2.2.4
+          node-version: 24
+      - uses: pnpm/action-setup@v4
         with:
-          version: ^8.6.5
           run_install: true
       - run: pnpm lint
       - run: pnpm build
       - run: pnpm test
       - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}

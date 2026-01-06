@@ -24,7 +24,7 @@ const createFlacTagMap = (): FlacTagMap => {
     {},
     {
       get(target, p, receiver) {
-        return Reflect.get(target, p.toString().toUpperCase(), receiver)
+        return Reflect.get(target, p.toString().toUpperCase(), receiver) as unknown
       },
       set(target, p, newValue, receiver) {
         return Reflect.set(target, p.toString().toUpperCase(), newValue, receiver)

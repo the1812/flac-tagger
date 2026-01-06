@@ -1,7 +1,7 @@
 import { describe, test, beforeEach, afterEach } from 'vitest'
 import { copyFile, unlink } from 'fs/promises'
-import { writeFlacTags, readFlacTags, writeFlacTagsSync, readFlacTagsSync } from '../src/index'
-import { assertTags, tags } from './common'
+import { writeFlacTags, readFlacTags, writeFlacTagsSync, readFlacTagsSync } from '../src/index.js'
+import { assertTags, tags } from './common.js'
 
 const sourcePath = './test/audio-blank.flac'
 const writePath = './test/audio-write.flac'

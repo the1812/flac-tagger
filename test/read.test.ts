@@ -1,6 +1,6 @@
 import { describe, test } from 'vitest'
-import { readFlacTags, readFlacTagsSync } from '../src/index'
-import { assertTags } from './common'
+import { readFlacTags, readFlacTagsSync } from '../src/index.js'
+import { assertTags } from './common.js'
 
 const readPath = './test/audio-read.flac'
 describe('read FLAC tags', () => {

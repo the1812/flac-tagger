@@ -7,7 +7,8 @@ export class OtherMetadataBlock extends MetadataBlock {
 
   constructor(initialValues: { header: MetadataBlockHeader; data: Buffer }) {
     super()
-    Object.assign(this, initialValues)
+    this.header = initialValues.header
+    this.data = initialValues.data
   }
 
   static fromBuffer(buffer: Buffer) {
