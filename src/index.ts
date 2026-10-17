@@ -1,9 +1,11 @@
-import { readFileSync, writeFileSync } from 'fs'
-import { readFile, writeFile } from 'fs/promises'
+import { closeSync, openSync } from 'fs'
+import { open } from 'fs/promises'
 import { VorbisCommentBlock } from './metadata-block/vorbis-comment.js'
 import { PictureBlock, PictureType } from './metadata-block/picture.js'
-import { FlacStream } from './stream.js'
-import { MetadataBlockType } from './metadata-block/header.js'
+import { FlacMetadata } from './metadata.js'
+import { PaddingBlock } from './metadata-block/padding.js'
+import { FlacFileReader } from './file-reader.js'
+import { FlacFileWriter } from './file-writer.js'
 
 /**
  * Map tag name to single value (`string`) or multiple values (`string[]`). The tag name does not need to be uppercase.
@@ -42,7 +44,7 @@ export interface FlacTags {
   picture?: {
     /** Specify the {@link PictureType}
      * @default PictureType.FrontCover
-     * @see https://xiph.org/flac/format.html#metadata_block_picture
+     * @see https://www.rfc-editor.org/rfc/rfc9639.html#name-picture
      */
     pictureType?: PictureType
     /** MIME type of the image, inferred from buffer by default */
@@ -61,8 +63,14 @@ export interface FlacTags {
     /** Buffer data of the image */
     buffer: Buffer
   }
+  /** Padding data bytes to reserve when the metadata region must grow. Use {@link PaddingBlock.trimPadding} or `0` to remove padding.
+   * @default PaddingBlock.defaultPaddingBytes
+   * @see https://www.rfc-editor.org/rfc/rfc9639.html#name-padding
+   */
+  padding?: number
 }
 export { FlacStream } from './stream.js'
+export { FlacMetadata } from './metadata.js'
 export { BufferBase } from './buffer-base.js'
 export {
   MetadataBlockType,
@@ -73,10 +81,10 @@ export { MetadataBlock } from './metadata-block/index.js'
 export { OtherMetadataBlock } from './metadata-block/other.js'
 export { PictureBlock, PictureType } from './metadata-block/picture.js'
 export { VorbisCommentBlock } from './metadata-block/vorbis-comment.js'
+export { PaddingBlock } from './metadata-block/padding.js'
 
-const readFlacTagsBuffer = (buffer: Buffer) => {
-  const stream = FlacStream.fromBuffer(buffer)
-  const { vorbisCommentBlock, pictureBlock } = stream
+const readFlacTagsMetadata = (metadata: FlacMetadata) => {
+  const { vorbisCommentBlock, pictureBlock } = metadata
   const commentList = vorbisCommentBlock?.commentList ?? []
   const tagMap = createFlacTagMap()
   commentList.forEach(it => {
@@ -99,6 +107,7 @@ const readFlacTagsBuffer = (buffer: Buffer) => {
   })
   const tags: FlacTags = {
     tagMap,
+    padding: metadata.paddingBytes,
     picture: pictureBlock
       ? {
           pictureType: pictureBlock.pictureType,
@@ -117,32 +126,34 @@ const readFlacTagsBuffer = (buffer: Buffer) => {
  * @param input FLAC file path or buffer
  */
 export const readFlacTagsSync = (input: string | Buffer) => {
-  let buffer: Buffer
-  if (typeof input === 'string') {
-    buffer = readFileSync(input)
-  } else {
-    buffer = input
+  if (typeof input !== 'string') {
+    return readFlacTagsMetadata(FlacMetadata.fromBuffer(input))
   }
-
-  return readFlacTagsBuffer(buffer)
+  const fd = openSync(input, 'r')
+  try {
+    return readFlacTagsMetadata(new FlacFileReader(fd).readSync())
+  } finally {
+    closeSync(fd)
+  }
 }
 /**
  * Read FLAC Tags
  * @param input FLAC file path or buffer
  */
 export const readFlacTags = async (input: string | Buffer) => {
-  let buffer: Buffer
-  if (typeof input === 'string') {
-    buffer = await readFile(input)
-  } else {
-    buffer = input
+  if (typeof input !== 'string') {
+    return readFlacTagsMetadata(FlacMetadata.fromBuffer(input))
   }
-
-  return readFlacTagsBuffer(buffer)
+  const file = await open(input, 'r')
+  try {
+    return readFlacTagsMetadata(await new FlacFileReader(file).read())
+  } finally {
+    await file.close()
+  }
 }
 
-const createFlacTagsBuffer = (tags: FlacTags, sourceBuffer: Buffer) => {
-  const stream = FlacStream.fromBuffer(sourceBuffer)
+const updateFlacMetadata = (tags: FlacTags, metadata: FlacMetadata) => {
+  const originalMetadataLength = metadata.length
   const commentList: string[] = []
   Object.entries(tags.tagMap).forEach(([key, value]) => {
     if (Array.isArray(value)) {
@@ -151,10 +162,10 @@ const createFlacTagsBuffer = (tags: FlacTags, sourceBuffer: Buffer) => {
       commentList.push(`${key.toUpperCase()}=${value}`)
     }
   })
-  if (stream.vorbisCommentBlock) {
-    stream.vorbisCommentBlock.commentList = commentList
+  if (metadata.vorbisCommentBlock) {
+    metadata.vorbisCommentBlock.commentList = commentList
   } else {
-    stream.metadataBlocks.push(
+    metadata.metadataBlocks.push(
       new VorbisCommentBlock({
         commentList,
       }),
@@ -162,12 +173,12 @@ const createFlacTagsBuffer = (tags: FlacTags, sourceBuffer: Buffer) => {
   }
 
   if (tags.picture) {
-    const { pictureBlock } = stream
+    const { pictureBlock } = metadata
     if (pictureBlock) {
-      stream.metadataBlocks = stream.metadataBlocks.filter(b => b !== pictureBlock)
+      metadata.metadataBlocks = metadata.metadataBlocks.filter(b => b !== pictureBlock)
     }
 
-    stream.metadataBlocks.push(
+    metadata.metadataBlocks.push(
       new PictureBlock({
         pictureBuffer: tags.picture.buffer,
         mime: tags.picture.mime,
@@ -178,9 +189,7 @@ const createFlacTagsBuffer = (tags: FlacTags, sourceBuffer: Buffer) => {
     )
   }
 
-  stream.metadataBlocks = stream.metadataBlocks.filter(b => b.type !== MetadataBlockType.Padding)
-
-  return stream.toBuffer()
+  metadata.setPadding(tags.padding ?? PaddingBlock.defaultPaddingBytes, originalMetadataLength)
 }
 /**
  * Write FLAC Tags to file (Synchronously)
@@ -188,8 +197,15 @@ const createFlacTagsBuffer = (tags: FlacTags, sourceBuffer: Buffer) => {
  * @param filePath FLAC file path
  */
 export const writeFlacTagsSync = (tags: FlacTags, filePath: string) => {
-  const buffer = readFileSync(filePath)
-  writeFileSync(filePath, createFlacTagsBuffer(tags, buffer))
+  const fd = openSync(filePath, 'r+')
+  try {
+    const metadata = new FlacFileReader(fd).readSync()
+    const originalMetadataLength = metadata.length
+    updateFlacMetadata(tags, metadata)
+    new FlacFileWriter(fd).writeSync(metadata, originalMetadataLength)
+  } finally {
+    closeSync(fd)
+  }
 }
 /**
  * Write FLAC Tags to file
@@ -197,6 +213,13 @@ export const writeFlacTagsSync = (tags: FlacTags, filePath: string) => {
  * @param filePath FLAC file path
  */
 export const writeFlacTags = async (tags: FlacTags, filePath: string) => {
-  const buffer = await readFile(filePath)
-  await writeFile(filePath, createFlacTagsBuffer(tags, buffer))
+  const file = await open(filePath, 'r+')
+  try {
+    const metadata = await new FlacFileReader(file).read()
+    const originalMetadataLength = metadata.length
+    updateFlacMetadata(tags, metadata)
+    await new FlacFileWriter(file).write(metadata, originalMetadataLength)
+  } finally {
+    await file.close()
+  }
 }

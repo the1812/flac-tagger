@@ -3,6 +3,7 @@ import { MetadataBlock } from './index.js'
 import { OtherMetadataBlock } from './other.js'
 import { PictureBlock } from './picture.js'
 import { VorbisCommentBlock } from './vorbis-comment.js'
+import { PaddingBlock } from './padding.js'
 
 export const parseBlock = (buffer: Buffer): MetadataBlock => {
   const blockType = (buffer.readUint8() & 0b01111111) as MetadataBlockType
@@ -11,6 +12,8 @@ export const parseBlock = (buffer: Buffer): MetadataBlock => {
       return VorbisCommentBlock.fromBuffer(buffer)
     case MetadataBlockType.Picture:
       return PictureBlock.fromBuffer(buffer)
+    case MetadataBlockType.Padding:
+      return PaddingBlock.fromBuffer(buffer)
     default:
       return OtherMetadataBlock.fromBuffer(buffer)
   }

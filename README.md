@@ -59,5 +59,5 @@ await writeFlacTags(
 
 ## Specification
 
-- [FLAC - Format](https://xiph.org/flac/format.html)
+- [FLAC - RFC 9639](https://datatracker.ietf.org/doc/rfc9639/)
 - [Ogg Vorbis Documentation](https://www.xiph.org/vorbis/doc/v-comment.html)

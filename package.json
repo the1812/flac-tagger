@@ -1,6 +1,6 @@
 {
   "name": "flac-tagger",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Pure JavaScript FLAC Tag writer and reader.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

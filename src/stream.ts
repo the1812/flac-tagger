@@ -1,73 +1,53 @@
 import { BufferBase } from './buffer-base.js'
-import { MetadataBlock } from './metadata-block/index.js'
-import { MetadataBlockType } from './metadata-block/header.js'
-import { parseBlock } from './metadata-block/parse.js'
+import { FlacMetadata } from './metadata.js'
+import type { MetadataBlock } from './metadata-block/index.js'
 import type { PictureBlock } from './metadata-block/picture.js'
 import type { VorbisCommentBlock } from './metadata-block/vorbis-comment.js'
 
-const FlacStreamMarker = 'fLaC'
 export class FlacStream extends BufferBase {
-  metadataBlocks: MetadataBlock[]
+  metadata: FlacMetadata
   frameData: Buffer
 
-  constructor(initialValues: { metadataBlocks: MetadataBlock[]; frameData: Buffer }) {
+  constructor(
+    initialValues: { frameData: Buffer } & (
+      | { metadataBlocks: MetadataBlock[] }
+      | { metadata: FlacMetadata }
+    ),
+  ) {
     super()
-    this.metadataBlocks = initialValues.metadataBlocks
+    this.metadata =
+      'metadata' in initialValues
+        ? initialValues.metadata
+        : new FlacMetadata({ metadataBlocks: initialValues.metadataBlocks })
     this.frameData = initialValues.frameData
   }
 
+  get metadataBlocks() {
+    return this.metadata.metadataBlocks
+  }
+
+  set metadataBlocks(blocks: MetadataBlock[]) {
+    this.metadata.metadataBlocks = blocks
+  }
+
   get vorbisCommentBlock(): VorbisCommentBlock | undefined {
-    return this.metadataBlocks.find(
-      it => it.type === MetadataBlockType.VorbisComment,
-    ) as VorbisCommentBlock
+    return this.metadata.vorbisCommentBlock
   }
 
   get pictureBlock(): PictureBlock | undefined {
-    return this.metadataBlocks.find(it => it.type === MetadataBlockType.Picture) as PictureBlock
+    return this.metadata.pictureBlock
   }
 
   static fromBuffer(buffer: Buffer) {
-    const marker = buffer.subarray(0, 4).toString()
-    if (marker !== FlacStreamMarker) {
-      throw new Error('Invalid stream header')
-    }
-    let bufferIndex = 4
-    const blocks: MetadataBlock[] = []
-    const isNotLastBlock = () =>
-      blocks.length > 0 ? !blocks[blocks.length - 1].header.isLast : true
-    while (isNotLastBlock()) {
-      const restBlock = buffer.subarray(bufferIndex)
-      const block = parseBlock(restBlock)
-      if (block.type === MetadataBlockType.Invalid) {
-        break
-      }
-      blocks.push(block)
-      bufferIndex += block.length
-    }
-    return new FlacStream({
-      metadataBlocks: blocks,
-      frameData: buffer.subarray(bufferIndex),
-    })
+    const metadata = FlacMetadata.fromBuffer(buffer)
+    return new FlacStream({ metadata, frameData: buffer.subarray(metadata.length) })
   }
 
   toBuffer() {
-    return Buffer.concat([
-      Buffer.from(FlacStreamMarker),
-      ...this.metadataBlocks.map((block, index) => {
-        const isLast = index === this.metadataBlocks.length - 1
-        block.header.isLast = isLast
-        block.header.dataLength = block.length - block.header.length
-        return block.toBuffer()
-      }),
-      this.frameData,
-    ])
+    return Buffer.concat([this.metadata.toBuffer(), this.frameData])
   }
 
   get length() {
-    return (
-      this.metadataBlocks
-        .map(it => it.length)
-        .reduce((previous, current) => previous + current, 0) + this.frameData.length
-    )
+    return this.metadata.length + this.frameData.length
   }
 }
