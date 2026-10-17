@@ -27,7 +27,7 @@ export class MetadataBlockHeader extends BufferBase {
   static fromBuffer(buffer: Buffer) {
     const lastAndType = buffer.readUint8()
     return new MetadataBlockHeader({
-      isLast: (lastAndType & 0b10000000) === 1,
+      isLast: (lastAndType & 0b10000000) === 0b10000000,
       type: (lastAndType & 0b01111111) as MetadataBlockType,
       dataLength: buffer.readUintBE(1, 3),
     })
